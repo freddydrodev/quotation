@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import SectionCard from "../Common/SectionCard/SectionCard";
 import DynamicTable from "../Common/DynamicTable/DynamicTable";
 
-export default class InitialCost extends Component {
+export default class MonthlyCost extends Component {
   state = {
     dataSource: []
   };
@@ -15,10 +15,10 @@ export default class InitialCost extends Component {
     const { dataSource } = this.state;
     return (
       <SectionCard
-        sectionTitle="Initial Cost Details"
+        sectionTitle="Monthly Cost Details"
         getData={this.props.getData}
         data={dataSource}
-        section="InitialCost"
+        section="MonthlyCost"
       >
         <DynamicTable dataSource={dataSource} setData={this.setData} />
       </SectionCard>

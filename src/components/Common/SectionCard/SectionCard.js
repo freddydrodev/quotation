@@ -4,11 +4,18 @@ import { Card, Button } from "antd";
 export default class SectionCard extends Component {
   render() {
     const { extra, card, title, header, body } = style;
-    const { sectionTitle } = this.props;
+    const { sectionTitle, getData, data, section } = this.props;
 
     return (
       <Card
-        extra={<Button type="primary" icon="eye" style={extra} />}
+        extra={
+          <Button
+            type="primary"
+            icon="eye"
+            style={extra}
+            onClick={() => getData(section, data)}
+          />
+        }
         style={card}
         bordered={false}
         title={<h4 style={title}>{sectionTitle}</h4>}
