@@ -9,7 +9,11 @@ class App extends Component {
   render() {
     return (
       <Layout>
-        <Header style={{ backgroundColor: "#007FFF" }}>okok</Header>
+        <Header
+          style={{ backgroundColor: "#007FFF", color: "#FFF", fontSize: 16 }}
+        >
+          Any Header you like can replace this one...
+        </Header>
         <Content style={{ padding: 15 }}>
           <HeaderInformation />
           <InitialCost />
