@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Input, Form } from "antd";
+import { InputNumber, Form } from "antd";
 
-class TableTextarea extends Component {
+class TableNumber extends Component {
   state = {
     editing: false
   };
+
   changeHandler = () => {
     const { form, change, idx, type } = this.props;
     form.validateFields((err, values) => {
@@ -13,22 +14,27 @@ class TableTextarea extends Component {
       }
     });
   };
+
   render() {
     const { ph, form, type, idx } = this.props;
     const { getFieldDecorator } = form;
     this.index = `${type}-${idx}`;
 
-    // <i>textarea {desc}</i>
     return this.state.editing ? (
       <Form>
         <Form.Item style={{ marginBottom: 0, padding: 0 }}>
           {getFieldDecorator(this.index, {
             initialValue: ph,
-            rules: [{ required: true, message: "Please insert a description!" }]
+            rules: [
+              { required: true, message: "Please insert a description!" },
+              { type: "number", message: "Must be numbers" }
+            ]
           })(
-            <Input
+            <InputNumber
+              min={1}
               onKeyUp={this.changeHandler}
               placeholder={ph}
+              onInput={() => console.log("object")}
               autoFocus={this.state.editing}
               onBlur={() => this.setState({ editing: false })}
               size="small"
@@ -37,14 +43,9 @@ class TableTextarea extends Component {
         </Form.Item>
       </Form>
     ) : (
-      <i
-        onClick={() => this.setState({ editing: true })}
-        style={{ display: "block", maxWidth: 200 }}
-      >
-        {ph}
-      </i>
+      <i onClick={() => this.setState({ editing: true })}>{ph}</i>
     );
   }
 }
 
-export default Form.create()(TableTextarea);
+export default Form.create()(TableNumber);

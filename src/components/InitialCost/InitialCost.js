@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import { Table, Button } from "antd";
 import _ from "lodash";
 import SectionCard from "../Common/SectionCard/SectionCard";
+import TableInputs from "../Common/TableInputs/TableInputs";
 
 export default class InitialCost extends Component {
   state = {
+    limit: 1,
     count: 4,
     editable: true,
     units: [],
@@ -21,62 +23,173 @@ export default class InitialCost extends Component {
       },
       {
         key: "2",
-        item: "NaN",
-        name: "Btn",
-        age: 40,
-        address: "asdk asdkljhsad"
+        item: "--",
+        description: "Description",
+        quantity: 0,
+        unit: "Unit",
+        price: 0,
+        amount: 0,
+        comment: "Comment"
       },
       {
         key: "1",
-        item: "NaN",
-        name: "Last",
-        age: 40,
-        address: "asdk asdkljhsad"
+        item: "--",
+        description: "Consumption Tax",
+        quantity: 1,
+        unit: "8%",
+        price: 39240,
+        amount: 0,
+        comment: "no comment"
       }
     ],
     columns: [
       {
         title: "Item",
         dataIndex: "item",
-        key: "item"
+        key: "item",
+        width: 100,
+        render: (value, rec, index) => {
+          if (index === this.state.limit) {
+            return {
+              children: (
+                <Button type="dashed" block onClick={this.addRowHandler}>
+                  Add a new row
+                </Button>
+              ),
+              props: {
+                colSpan: 7
+              }
+            };
+          } else {
+            return <b>{value}</b>;
+          }
+        }
       },
       {
         title: "Description",
         dataIndex: "description",
         key: "description",
-        render: desc => <i>textarea {desc}</i>
+        render: (prevValue, rec, index) => {
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return (
+            <TableInputs
+              data={{ prevValue, fieldType: "description", fieldPos: index }}
+              change={this.change}
+              type="text"
+            />
+          );
+        },
+        width: 200
       },
       {
         title: "Quantity",
         dataIndex: "quantity",
         key: "quantity",
-        render: qty => <i>input num {qty}</i>
+        render: (prevValue, rec, index) => {
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return (
+            <TableInputs
+              data={{ prevValue, fieldType: "quantity", fieldPos: index }}
+              change={this.change}
+              type="number"
+            />
+          );
+        },
+        width: 100
       },
       {
         title: "Unit",
         dataIndex: "unit",
         key: "unit",
-        render: unit => <i>select opt {unit}</i>
+        render: (prevValue, rec, index) => {
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return (
+            <TableInputs
+              data={{ prevValue, fieldType: "unit", fieldPos: index }}
+              change={this.change}
+              type="select"
+            />
+          );
+        },
+        width: 100
       },
       {
         title: "Price",
         dataIndex: "price",
         key: "price",
-        render: price => <i>inp num {price}</i>
+        render: (prevValue, rec, index) => {
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return (
+            <TableInputs
+              data={{ prevValue, fieldType: "price", fieldPos: index }}
+              change={this.change}
+              type="number"
+            />
+          );
+        },
+        width: 100
       },
       {
         title: "Amount",
         dataIndex: "amount",
         key: "amount",
         render: (amount, { price, quantity }, index) => {
-          return <i>dynamic para {price * quantity}</i>;
-        }
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return <i>{price * quantity || 0}</i>;
+        },
+        width: 100
       },
       {
         title: "Comment",
         dataIndex: "comment",
         key: "comment",
-        render: cmt => <i>textarea {cmt}</i>
+        render: (prevValue, rec, index) => {
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return (
+            <TableInputs
+              data={{ prevValue, fieldType: "comment", fieldPos: index }}
+              change={this.change}
+              type="text"
+            />
+          );
+        },
+        width: 200
       }
     ]
   };
@@ -95,8 +208,16 @@ export default class InitialCost extends Component {
     };
   };
 
+  change = (value, index, type) => {
+    const dataSource = [...this.state.dataSource];
+    dataSource[index][type] = value;
+
+    this.setState({ dataSource });
+  };
+
   addRowHandler = () => {
     const count = this.state.count;
+    const limit = this.state.limit;
     const _dataSource = [...this.state.dataSource];
     const { length } = _dataSource;
     const lastest = _dataSource.splice(length - 2, length);
@@ -104,14 +225,17 @@ export default class InitialCost extends Component {
     _dataSource.push(this.template(count));
     const dataSource = _.flatten(_.concat(_dataSource, lastest));
 
-    this.setState({ dataSource, count: count + 1 });
+    this.setState({ dataSource, count: count + 1, limit: limit + 1 });
   };
+
+  componentDidMount() {
+    this.limit = this.state.dataSource.length - 2;
+  }
 
   render() {
     const { dataSource, columns } = this.state;
     return (
       <SectionCard sectionTitle="Initial Cost Details">
-        <Button onClick={() => console.log(this.state.dataSource)}>data</Button>
         <Table
           pagination={{
             defaultPageSize: 20
@@ -123,9 +247,6 @@ export default class InitialCost extends Component {
           dataSource={dataSource}
           columns={columns}
         />
-        <Button type="dashed" block icon="plus" onClick={this.addRowHandler}>
-          Add a new row
-        </Button>
       </SectionCard>
     );
   }

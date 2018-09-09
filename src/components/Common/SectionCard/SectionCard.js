@@ -8,7 +8,7 @@ export default class SectionCard extends Component {
 
     return (
       <Card
-        extra={<Button type="ghost" icon="eye" style={extra} />}
+        extra={<Button type="primary" icon="eye" style={extra} />}
         style={card}
         bordered={false}
         title={<h4 style={title}>{sectionTitle}</h4>}
@@ -38,7 +38,8 @@ const style = {
     fontWeight: 200,
     fontSize: 20,
     textAlign: "left",
-    paddingBottom: 0
+    paddingBottom: 0,
+    color: "#40A9FF"
   },
   body: { padding: "0 15px 15px 15px" },
   extra: { fontSize: 20, paddingLeft: 20, paddingRight: 20 }
