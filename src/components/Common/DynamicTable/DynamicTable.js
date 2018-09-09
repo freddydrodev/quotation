@@ -18,7 +18,8 @@ export default class DynamicTable extends Component {
         unit: "Unit",
         price: 0,
         amount: 0,
-        comment: "Comment"
+        comment: "Comment",
+        option: ""
       },
       {
         key: "0",
@@ -28,11 +29,10 @@ export default class DynamicTable extends Component {
         unit: "8%",
         price: 39240,
         amount: 0,
-        comment: "no comment"
+        comment: "no comment",
+        option: ""
       }
     ],
-    editable: true,
-    units: [],
     columns: [
       {
         title: "Item",
@@ -48,7 +48,7 @@ export default class DynamicTable extends Component {
                 </Button>
               ),
               props: {
-                colSpan: 7
+                colSpan: 8
               }
             };
           } else {
@@ -111,6 +111,30 @@ export default class DynamicTable extends Component {
         render: (prevValue, rec, index) =>
           this.conditionalRenderer(prevValue, index, "comment", "text"),
         width: 200
+      },
+      {
+        title: "Option",
+        dataIndex: "option",
+        key: "option",
+        width: 80,
+        render: (a, b, index) => {
+          if (index === this.state.limit) {
+            return {
+              props: {
+                colSpan: 0
+              }
+            };
+          }
+          return (
+            <Button
+              size="small"
+              type="danger"
+              icon="delete"
+              block
+              onClick={() => this.removeRowHandler(index)}
+            />
+          );
+        }
       }
     ]
   };
@@ -124,15 +148,16 @@ export default class DynamicTable extends Component {
       unit: `Unit ${count}`,
       price: 0,
       amount: 0,
-      comment: `Comment ${count}`
+      comment: `Comment ${count}`,
+      option: ""
     };
   };
 
   change = (value, index, type) => {
     const dataSource = [...this.state.dataSource];
     dataSource[index][type] = value;
-
     this.setState({ dataSource });
+    this.props.getCost(this.props.section, this.sendData());
   };
 
   addRowHandler = () => {
@@ -146,15 +171,41 @@ export default class DynamicTable extends Component {
     const dataSource = _.flatten(_.concat(_dataSource, lastest));
 
     this.setState({ dataSource, count, limit }, () => {
-      const dataSource = [...this.state.dataSource];
-      dataSource.splice(this.state.limit, this.state.dataSource.length - 1);
-      this.props.setData(dataSource);
+      this.props.getCost(this.props.section, this.sendData());
     });
+  };
+
+  sendData = () => {
+    const data = [...this.state.dataSource];
+    data.splice(this.state.limit, this.state.dataSource.length - 1);
+
+    const dataSource = data.map(({ key, ...rest }) => ({
+      ...rest,
+      amount: rest.price * rest.quantity
+    }));
+
+    this.props.setData(dataSource);
+    return dataSource;
+  };
+
+  removeRowHandler = index => {
+    if (index < this.state.limit) {
+      const limit = this.state.limit - 1;
+      const dataSource = [...this.state.dataSource];
+      dataSource.splice(index, 1);
+
+      this.setState({ dataSource, limit }, () => {
+        this.props.getCost(this.props.section, this.sendData());
+      });
+    }
   };
 
   componentDidMount() {
     const dataSource = [...this.state.dataSource, ...this.props.dataSource];
-    this.setState({ dataSource });
+    const columns = this.props.columns
+      ? this.props.columns
+      : this.state.columns;
+    this.setState({ dataSource, columns });
   }
 
   conditionalRenderer = (prevValue, index, fieldType, inputType) => {

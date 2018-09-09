@@ -20,7 +20,12 @@ export default class InitialCost extends Component {
         data={dataSource}
         section="InitialCost"
       >
-        <DynamicTable dataSource={dataSource} setData={this.setData} />
+        <DynamicTable
+          dataSource={dataSource}
+          setData={this.setData}
+          getCost={this.props.getCost}
+          section="InitialCost"
+        />
       </SectionCard>
     );
   }

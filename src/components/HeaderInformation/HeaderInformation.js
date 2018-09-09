@@ -25,6 +25,7 @@ export default class HeaderInformation extends Component {
   };
   render() {
     const { labelStyle, summary, para } = style;
+    const { initialCost, monthlyCost } = this.props;
     return (
       <SectionCard sectionTitle="Header Information">
         <Row gutter={15} type="flex" style={{ marginBottom: 15 }}>
@@ -40,10 +41,10 @@ export default class HeaderInformation extends Component {
             <strong>Expiration Date:</strong> 2018-10-06
           </p>
           <p style={para}>
-            <strong>Initial Cost:</strong> 209844
+            <strong>Initial Cost:</strong> {initialCost}
           </p>
           <p style={para}>
-            <strong>Monthly Cost:</strong> 297972
+            <strong>Monthly Cost:</strong> {monthlyCost}
           </p>
         </div>
       </SectionCard>

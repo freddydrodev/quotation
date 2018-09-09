@@ -20,7 +20,12 @@ export default class MonthlyCost extends Component {
         data={dataSource}
         section="MonthlyCost"
       >
-        <DynamicTable dataSource={dataSource} setData={this.setData} />
+        <DynamicTable
+          dataSource={dataSource}
+          setData={this.setData}
+          getCost={this.props.getCost}
+          section="MonthlyCost"
+        />
       </SectionCard>
     );
   }

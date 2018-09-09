@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Layout, Alert } from "antd";
+import _ from "lodash";
 import HeaderInformation from "../../components/HeaderInformation/HeaderInformation";
 import InitialCost from "../../components/InitialCost/InitialCost";
 import "./App.less";
@@ -8,6 +9,10 @@ import MonthlyCost from "../../components/MonthlyCost/MonthlyCost";
 const { Content, Header } = Layout;
 class App extends Component {
   state = {
+    cost: {
+      InitialCost: 0,
+      MonthlyCost: 0
+    },
     dataSources: {
       HeaderInformation: [],
       InitialCost: [],
@@ -18,7 +23,10 @@ class App extends Component {
   getData = (section, data) => {
     if (this.state.dataSources[section]) {
       const dataSources = this.state.dataSources;
+      // const cost = this.state.cost;
       dataSources[section] = data;
+
+      // cost[section] = _.sum([...data].map(e => e.amount));
 
       this.setState({ dataSources }, () => {
         alert(JSON.stringify(this.state.dataSources[section]));
@@ -26,7 +34,18 @@ class App extends Component {
     }
   };
 
+  getCost = (section, data) => {
+    if (typeof this.state.cost[section] === "number") {
+      const cost = this.state.cost;
+
+      cost[section] = _.sum([...data].map(e => e.amount));
+
+      this.setState({ cost });
+    }
+  };
+
   render() {
+    const { cost } = this.state;
     return (
       <Layout>
         <Header
@@ -48,9 +67,12 @@ class App extends Component {
               </span>
             }
           />
-          <HeaderInformation />
-          <InitialCost getData={this.getData} />
-          <MonthlyCost getData={this.getData} />
+          <HeaderInformation
+            initialCost={cost.InitialCost}
+            monthlyCost={cost.MonthlyCost}
+          />
+          <InitialCost getData={this.getData} getCost={this.getCost} />
+          <MonthlyCost getData={this.getData} getCost={this.getCost} />
         </Content>
       </Layout>
     );
