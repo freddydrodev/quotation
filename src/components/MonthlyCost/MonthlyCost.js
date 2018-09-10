@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import SectionCard from "../Common/SectionCard/SectionCard";
 import DynamicTable from "../Common/DynamicTable/DynamicTable";
+import Axios from "axios";
+import { Skeleton } from "antd";
 
 export default class MonthlyCost extends Component {
   state = {
     dataSource: [],
     columns: [
       { name: "Item", notEditable: true, width: 80 },
-      { name: "Description" },
+      { name: "Description", width: 250 },
       { name: "Quantity", type: "number" },
       { name: "Unit", type: "select" },
       { name: "Price", type: "number" },
@@ -18,17 +20,41 @@ export default class MonthlyCost extends Component {
           <i>{price * quantity || 0}</i>
         )
       },
-      { name: "Comment" }
+      { name: "Comment", width: 250 }
     ]
   };
 
   setData = dataSource => {
     this.setState({ dataSource });
   };
+  async componentDidMount() {
+    const dataSource = [];
+    Axios.get("http://json.invite-comm.jp/api/json/install")
+      .then(({ data }) => {
+        data.forEach(e => {
+          const { amount, comment, desc, item, price, qty, record, unit } = e;
+
+          const el = {
+            key: record,
+            item,
+            amount,
+            price,
+            comment,
+            unit,
+            description: desc,
+            quantity: qty
+          };
+          dataSource.push(el);
+        });
+      })
+      .then(() => {
+        this.setState({ dataSource, isReady: true });
+      });
+  }
 
   render() {
-    const { dataSource, columns } = this.state;
-    return (
+    const { dataSource, columns, isReady } = this.state;
+    return isReady ? (
       <SectionCard
         sectionTitle="Monthly Cost Details"
         getData={this.props.getData}
@@ -42,6 +68,10 @@ export default class MonthlyCost extends Component {
           section="MonthlyCost"
           columns={columns}
         />
+      </SectionCard>
+    ) : (
+      <SectionCard sectionTitle="Monthly Cost Details">
+        <Skeleton active />
       </SectionCard>
     );
   }

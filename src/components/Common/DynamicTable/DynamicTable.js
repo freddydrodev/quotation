@@ -99,10 +99,16 @@ export default class DynamicTable extends Component {
 
     //put remote date into the list
     const finalSource = [...this.props.dataSource, ..._dataSource];
+    const limit = this.props.dataSource.length;
     const finalColumns = this.generateColumns(this.props.columns);
 
     //updating data
-    this.setState({ dataSource: finalSource, columns: finalColumns });
+    this.setState(
+      { dataSource: finalSource, columns: finalColumns, limit },
+      () => {
+        this.props.getCost(this.props.section, this.sendData());
+      }
+    );
   }
 
   generateTemplate = (columns, count) => {
@@ -138,7 +144,6 @@ export default class DynamicTable extends Component {
               b.description !== "Consumption Tax"
             ) {
               if (type === "number") {
-                console.log(a[dataIndex]);
                 return a[dataIndex] < b[dataIndex] ? 1 : -1;
               }
               return a[dataIndex].length < b[dataIndex].length ? 1 : -1;
