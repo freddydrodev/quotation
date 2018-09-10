@@ -3,8 +3,9 @@ import { Layout, Alert } from "antd";
 import _ from "lodash";
 import HeaderInformation from "../../components/HeaderInformation/HeaderInformation";
 import InitialCost from "../../components/InitialCost/InitialCost";
-import "./App.less";
 import MonthlyCost from "../../components/MonthlyCost/MonthlyCost";
+import Notes from "../../components/Notes/Notes";
+import "./App.less";
 
 const { Content, Header } = Layout;
 class App extends Component {
@@ -16,7 +17,8 @@ class App extends Component {
     dataSources: {
       HeaderInformation: [],
       InitialCost: [],
-      MonthlyCost: []
+      MonthlyCost: [],
+      Notes: []
     }
   };
 
@@ -73,6 +75,7 @@ class App extends Component {
           />
           <InitialCost getData={this.getData} getCost={this.getCost} />
           <MonthlyCost getData={this.getData} getCost={this.getCost} />
+          <Notes getData={this.getData} />
         </Content>
       </Layout>
     );

@@ -32,130 +32,16 @@ export default class DynamicTable extends Component {
         comment: "no comment",
         option: ""
       }
-    ],
-    columns: [
-      {
-        title: "Item",
-        dataIndex: "item",
-        key: "item",
-        width: 100,
-        render: (value, rec, index) => {
-          if (index === this.state.limit) {
-            return {
-              children: (
-                <Button type="dashed" block onClick={this.addRowHandler}>
-                  Add a new row
-                </Button>
-              ),
-              props: {
-                colSpan: 8
-              }
-            };
-          } else {
-            return <b>{value}</b>;
-          }
-        }
-      },
-      {
-        title: "Description",
-        dataIndex: "description",
-        key: "description",
-        render: (prevValue, rec, index) =>
-          this.conditionalRenderer(prevValue, index, "description", "text"),
-        width: 200
-      },
-      {
-        title: "Quantity",
-        dataIndex: "quantity",
-        key: "quantity",
-        render: (prevValue, rec, index) =>
-          this.conditionalRenderer(prevValue, index, "quantity", "number"),
-        width: 100
-      },
-      {
-        title: "Unit",
-        dataIndex: "unit",
-        key: "unit",
-        render: (prevValue, rec, index) =>
-          this.conditionalRenderer(prevValue, index, "unit", "select"),
-        width: 100
-      },
-      {
-        title: "Price",
-        dataIndex: "price",
-        key: "price",
-        render: (prevValue, rec, index) =>
-          this.conditionalRenderer(prevValue, index, "price", "number"),
-        width: 100
-      },
-      {
-        title: "Amount",
-        dataIndex: "amount",
-        key: "amount",
-        render: (amount, { price, quantity }, index) => {
-          if (index === this.state.limit) {
-            return {
-              props: {
-                colSpan: 0
-              }
-            };
-          }
-          return <i>{price * quantity || 0}</i>;
-        },
-        width: 100
-      },
-      {
-        title: "Comment",
-        dataIndex: "comment",
-        key: "comment",
-        render: (prevValue, rec, index) =>
-          this.conditionalRenderer(prevValue, index, "comment", "text"),
-        width: 200
-      },
-      {
-        title: "Option",
-        dataIndex: "option",
-        key: "option",
-        width: 80,
-        render: (a, b, index) => {
-          if (index === this.state.limit) {
-            return {
-              props: {
-                colSpan: 0
-              }
-            };
-          }
-          return (
-            <Button
-              size="small"
-              type="danger"
-              icon="delete"
-              block
-              onClick={() => this.removeRowHandler(index)}
-            />
-          );
-        }
-      }
     ]
-  };
-
-  template = count => {
-    return {
-      key: `${count + 2}`,
-      item: `${count}`,
-      description: `Description ${count}`,
-      quantity: 0,
-      unit: `Unit ${count}`,
-      price: 0,
-      amount: 0,
-      comment: `Comment ${count}`,
-      option: ""
-    };
   };
 
   change = (value, index, type) => {
     const dataSource = [...this.state.dataSource];
-    dataSource[index][type] = value;
+    dataSource.forEach(el => {
+      if (el.key === index) {
+        el[type] = value;
+      }
+    });
     this.setState({ dataSource });
     this.props.getCost(this.props.section, this.sendData());
   };
@@ -165,9 +51,9 @@ export default class DynamicTable extends Component {
     const limit = this.state.limit + 1;
     const _dataSource = [...this.state.dataSource];
     const { length } = _dataSource;
-    const lastest = _dataSource.splice(length - 2, length);
+    const lastest = _dataSource.splice(length - this.endElementsLength, length);
 
-    _dataSource.push(this.template(count));
+    _dataSource.push(this.generateTemplate(this.props.columns, count));
     const dataSource = _.flatten(_.concat(_dataSource, lastest));
 
     this.setState({ dataSource, count, limit }, () => {
@@ -201,29 +87,154 @@ export default class DynamicTable extends Component {
   };
 
   componentDidMount() {
-    const dataSource = [...this.state.dataSource, ...this.props.dataSource];
-    const columns = this.props.columns
-      ? this.props.columns
-      : this.state.columns;
-    this.setState({ dataSource, columns });
-  }
+    const { dataSource } = this.state;
+    this.endElementsLength = 2; //btn + tax
+    const _dataSource = [...dataSource];
 
-  conditionalRenderer = (prevValue, index, fieldType, inputType) => {
-    if (index === this.state.limit) {
-      return {
-        props: {
-          colSpan: 0
-        }
-      };
+    //remove tax row
+    if (this.props.removeTax) {
+      _dataSource.pop();
+      this.endElementsLength = 1; //btn only
     }
 
-    return (
-      <TableInputs
-        data={{ prevValue, fieldType, fieldPos: index }}
-        change={this.change}
-        type={inputType}
-      />
+    //put remote date into the list
+    const finalSource = [...this.props.dataSource, ..._dataSource];
+    const finalColumns = this.generateColumns(this.props.columns);
+
+    //updating data
+    this.setState({ dataSource: finalSource, columns: finalColumns });
+  }
+
+  generateTemplate = (columns, count) => {
+    const key = [...columns].map(col => col.name.toLowerCase());
+    const val = key.map((e, i) => {
+      return i === 0
+        ? `${count}`
+        : columns[i].type === "number"
+          ? 0
+          : `${e}-${count}`;
+    });
+    const out = _.zipObject(key, val);
+
+    return { key: `${parseInt(val[0]) + 1}`, ...out, option: "--" };
+  };
+
+  generateColumns = columns => {
+    const len = [...columns].length;
+    const gen = [...columns].map(
+      ({ name, type, notEditable, width, renderer, noIndex }, i) => {
+        const dataIndex = name.toLowerCase();
+        const title = name;
+        const inputType = type || "text";
+
+        return {
+          title,
+          dataIndex,
+          sorter: (a, b) => {
+            if (
+              a.description !== "add btn" &&
+              b.description !== "add btn" &&
+              a.description !== "Consumption Tax" &&
+              b.description !== "Consumption Tax"
+            ) {
+              if (type === "number") {
+                console.log(a[dataIndex]);
+                return a[dataIndex] < b[dataIndex] ? 1 : -1;
+              }
+              return a[dataIndex].length < b[dataIndex].length ? 1 : -1;
+            }
+          },
+          width: width || null,
+          render: (prevValue, rec, index) => {
+            //if we met the index
+            if (i === 0 && !noIndex) {
+              //expand col and append button if we met its position
+              if (index === this.state.limit) {
+                return {
+                  children: (
+                    <Button type="dashed" block onClick={this.addRowHandler}>
+                      Add a new row
+                    </Button>
+                  ),
+                  props: {
+                    colSpan: len + 1
+                  }
+                };
+              }
+
+              //otherwise just display the data
+              else {
+                return <b>{prevValue}</b>;
+              }
+            }
+
+            //if the field is not editable
+            if (notEditable) {
+              //remove the col to let the btn span
+              if (index === this.state.limit) {
+                return {
+                  props: {
+                    colSpan: 0
+                  }
+                };
+              }
+              return renderer ? (
+                //for custom renderer
+                renderer(prevValue, rec, index)
+              ) : (
+                //default rendering
+                <i>{prevValue}</i>
+              );
+            }
+
+            // if it's editable then we just call conditionalRenderer func
+            if (index === this.state.limit) {
+              return {
+                props: {
+                  colSpan: 0
+                }
+              };
+            }
+
+            return (
+              <TableInputs
+                data={{ prevValue, fieldType: dataIndex, fieldPos: rec.key }}
+                change={this.change}
+                type={inputType}
+              />
+            );
+          }
+        };
+      }
     );
+
+    //add option
+    gen.push({
+      title: "Option",
+      dataIndex: "option",
+      width: 80,
+      render: (a, b, index) => {
+        if (index === this.state.limit) {
+          return {
+            props: {
+              colSpan: 0
+            }
+          };
+        }
+        return (
+          <Button
+            size="small"
+            type="danger"
+            icon="delete"
+            block
+            onClick={() => this.removeRowHandler(index)}
+          />
+        );
+      }
+    });
+
+    this.generateTemplate(columns, this.state.count);
+    return gen;
   };
 
   render() {
