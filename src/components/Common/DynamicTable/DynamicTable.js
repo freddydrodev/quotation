@@ -115,6 +115,9 @@ export default class DynamicTable extends Component {
       document.querySelector(`.${section} tbody`),
       {
         group: section,
+        onStart: () => {
+          // debugger;
+        },
         onSort: evt => {
           this.updateIndex(evt.oldIndex, evt.newIndex);
         }
@@ -269,6 +272,7 @@ export default class DynamicTable extends Component {
 
     return (
       <Table
+        scroll={{ x: true }}
         className={`tables ${this.props.section}`}
         pagination={{
           defaultPageSize: MAX_COLUMNS

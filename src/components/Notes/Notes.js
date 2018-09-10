@@ -33,7 +33,9 @@ export default class Notes extends Component {
         });
       })
       .then(() => {
-        this.setState({ dataSource, isReady: true });
+        this.setState({ dataSource, isReady: true }, () => {
+          this.props.getData("Notes", this.state.dataSource, true);
+        });
       });
   }
 

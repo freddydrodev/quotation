@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Layout, Alert } from "antd";
+import { Layout, Alert, Button } from "antd";
 import _ from "lodash";
 import HeaderInformation from "../../components/HeaderInformation/HeaderInformation";
 import InitialCost from "../../components/InitialCost/InitialCost";
@@ -15,20 +15,22 @@ class App extends Component {
       MonthlyCost: 0
     },
     dataSources: {
-      HeaderInformation: [],
+      HeaderInformation: {},
       InitialCost: [],
       MonthlyCost: [],
       Notes: []
     }
   };
 
-  getData = (section, data) => {
+  getData = (section, data, preventAlert) => {
     if (this.state.dataSources[section]) {
       const dataSources = this.state.dataSources;
       dataSources[section] = data;
 
       this.setState({ dataSources }, () => {
-        alert(JSON.stringify(this.state.dataSources[section]));
+        if (!preventAlert) {
+          alert(JSON.stringify(this.state.dataSources[section]));
+        }
       });
     }
   };
@@ -51,6 +53,13 @@ class App extends Component {
           style={{ backgroundColor: "#007FFF", color: "#FFF", fontSize: 16 }}
         >
           Any Header you like can replace this one...
+          <Button
+            style={{ float: "right", margin: "15px 0" }}
+            icon="eye"
+            onClick={() => alert(JSON.stringify(this.state.dataSources))}
+          >
+            Main data preview
+          </Button>
         </Header>
 
         <Content style={{ padding: 15 }}>
@@ -69,6 +78,7 @@ class App extends Component {
           <HeaderInformation
             initialCost={cost.InitialCost}
             monthlyCost={cost.MonthlyCost}
+            getData={this.getData}
           />
           <InitialCost getData={this.getData} getCost={this.getCost} />
           <MonthlyCost getData={this.getData} getCost={this.getCost} />

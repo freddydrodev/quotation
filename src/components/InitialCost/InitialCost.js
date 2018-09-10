@@ -11,15 +11,16 @@ export default class InitialCost extends Component {
     columns: [
       { name: "Item", notEditable: true, width: 80 },
       { name: "Description", width: 250 },
-      { name: "Quantity", type: "number" },
-      { name: "Unit", type: "select" },
-      { name: "Price", type: "number" },
+      { name: "Quantity", type: "number", width: 100 },
+      { name: "Unit", type: "select", width: 100 },
+      { name: "Price", type: "number", width: 100 },
       {
         name: "Amount",
         notEditable: true,
         renderer: (amount, { price, quantity }, index) => (
           <i>{price * quantity || 0}</i>
-        )
+        ),
+        width: 150
       },
       { name: "Comment", width: 250 }
     ]
@@ -50,7 +51,9 @@ export default class InitialCost extends Component {
         });
       })
       .then(() => {
-        this.setState({ dataSource, isReady: true });
+        this.setState({ dataSource, isReady: true }, () => {
+          this.props.getData("InitialCost", this.state.dataSource, true);
+        });
       });
   }
 
