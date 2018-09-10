@@ -29,7 +29,7 @@ export default class MonthlyCost extends Component {
   };
   async componentDidMount() {
     const dataSource = [];
-    Axios.get("http://json.invite-comm.jp/api/json/install")
+    Axios.get("https://json.invite-comm.jp/api/json/install")
       .then(({ data }) => {
         data.forEach(e => {
           const { amount, comment, desc, item, price, qty, record, unit } = e;

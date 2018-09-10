@@ -8,7 +8,7 @@ export default class Notes extends Component {
   state = {
     dataSource: [],
     columns: [
-      { name: "ID", type: "text", notEditable: true, width: 80 },
+      { name: "Item", type: "text", notEditable: true, width: 80 },
       { name: "Note", type: "text" }
     ]
   };
@@ -19,15 +19,14 @@ export default class Notes extends Component {
 
   async componentDidMount() {
     const dataSource = [];
-    Axios.get("http://json.invite-comm.jp/api/json/notes")
+    Axios.get("https://json.invite-comm.jp/api/json/notes")
       .then(({ data }) => {
-        console.log(data);
         data.forEach(e => {
           const { text, item, record } = e;
 
           const el = {
             key: record,
-            id: item,
+            item,
             note: text
           };
           dataSource.push(el);

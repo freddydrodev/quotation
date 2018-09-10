@@ -145,7 +145,7 @@ class TableInputs extends Component {
     return this.state.editing ? (
       <Form>{this.generateInput()}</Form>
     ) : (
-      <i onClick={() => this.setState({ editing: true })}>
+      <i onDoubleClick={() => this.setState({ editing: true })}>
         {this.props.data.prevValue}
       </i>
     );

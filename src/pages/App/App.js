@@ -25,10 +25,7 @@ class App extends Component {
   getData = (section, data) => {
     if (this.state.dataSources[section]) {
       const dataSources = this.state.dataSources;
-      // const cost = this.state.cost;
       dataSources[section] = data;
-
-      // cost[section] = _.sum([...data].map(e => e.amount));
 
       this.setState({ dataSources }, () => {
         alert(JSON.stringify(this.state.dataSources[section]));

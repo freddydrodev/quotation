@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Table, Button } from "antd";
 import _ from "lodash";
+import SortableJS from "sortablejs";
 import TableInputs from "../TableInputs/TableInputs";
 
 const MAX_COLUMNS = 20;
@@ -86,10 +87,41 @@ export default class DynamicTable extends Component {
     }
   };
 
+  updateIndex = (oldIndex, newIndex) => {
+    const dataSource = [...this.state.dataSource];
+    if (dataSource[oldIndex].key && dataSource[newIndex].key) {
+      const el = dataSource.splice(oldIndex, 1);
+      dataSource.splice(newIndex, 0, el[0]);
+
+      const _dataSource = dataSource.map(({ ...rest }, i) => ({
+        ...rest,
+        item: `${i + 1}`
+      }));
+
+      this.setState({ dataSource: _dataSource }, () => {
+        this.props.getCost(this.props.section, this.sendData());
+      });
+    }
+  };
+
   componentDidMount() {
-    const { dataSource } = this.state;
+    //reorder the new source
+    const { section } = this.props;
     this.endElementsLength = 2; //btn + tax
-    const _dataSource = [...dataSource];
+    const _dataSource = [...this.state.dataSource];
+
+    // this.setState({ dataSource });
+    this.sortable = new SortableJS(
+      document.querySelector(`.${section} tbody`),
+      {
+        group: section,
+        onSort: evt => {
+          this.updateIndex(evt.oldIndex, evt.newIndex);
+        }
+      }
+    );
+
+    this.endElementsLength = 2; //btn + tax
 
     //remove tax row
     if (this.props.removeTax) {
@@ -98,7 +130,10 @@ export default class DynamicTable extends Component {
     }
 
     //put remote date into the list
-    const finalSource = [...this.props.dataSource, ..._dataSource];
+    const ds = [...this.props.dataSource].sort(
+      (a, b) => (+a.item < +b.item ? -1 : 1)
+    );
+    const finalSource = [...ds, ..._dataSource];
     const limit = this.props.dataSource.length;
     const finalColumns = this.generateColumns(this.props.columns);
 
@@ -122,7 +157,7 @@ export default class DynamicTable extends Component {
     });
     const out = _.zipObject(key, val);
 
-    return { key: `${parseInt(val[0]) + 1}`, ...out, option: "--" };
+    return { key: `${parseInt(val[0]) + 1}`, ...out };
   };
 
   generateColumns = columns => {
@@ -136,19 +171,6 @@ export default class DynamicTable extends Component {
         return {
           title,
           dataIndex,
-          sorter: (a, b) => {
-            if (
-              a.description !== "add btn" &&
-              b.description !== "add btn" &&
-              a.description !== "Consumption Tax" &&
-              b.description !== "Consumption Tax"
-            ) {
-              if (type === "number") {
-                return a[dataIndex] < b[dataIndex] ? 1 : -1;
-              }
-              return a[dataIndex].length < b[dataIndex].length ? 1 : -1;
-            }
-          },
           width: width || null,
           render: (prevValue, rec, index) => {
             //if we met the index
@@ -247,11 +269,11 @@ export default class DynamicTable extends Component {
 
     return (
       <Table
+        className={`tables ${this.props.section}`}
         pagination={{
           defaultPageSize: MAX_COLUMNS
         }}
         style={{ marginTop: 15 }}
-        className="tables"
         bodyStyle={{ paddingLeft: 0 }}
         size="small"
         dataSource={dataSource}

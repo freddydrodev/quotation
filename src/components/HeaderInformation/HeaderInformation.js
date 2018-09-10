@@ -1,41 +1,83 @@
 import React, { Component } from "react";
-import { Input, DatePicker, Row, Col } from "antd";
+import { Input, DatePicker, Row, Col, Form } from "antd";
 import SectionCard from "../Common/SectionCard/SectionCard.js";
 
-export default class HeaderInformation extends Component {
-  state = {
-    fields: [
-      {
-        label: "Company Name",
-        content: <Input placeholder="Name of the company" />
-      },
-      {
-        label: "Type",
-        content: <Input placeholder="Contract Type" />
-      },
-      {
-        label: "Delivery Date",
-        content: <DatePicker style={{ width: "100%" }} />
-      },
-      {
-        label: "Terms",
-        content: <Input placeholder="Terms of the contract" />
-      }
-    ]
-  };
+const FormItem = Form.Item;
+
+class HeaderFormComponent extends Component {
   render() {
-    const { labelStyle, summary, para } = style;
+    const { getFieldDecorator } = this.props.form;
+    return (
+      <Form hideRequiredMark>
+        <Row gutter={15} type="flex">
+          <Col span={12}>
+            <FormItem label={<strong>Company Name</strong>}>
+              {getFieldDecorator("companyName", {
+                rules: [
+                  {
+                    required: true,
+                    message: "This Field is required",
+                    whitespace: true
+                  }
+                ]
+              })(<Input placeholder="Contract Name" />)}
+            </FormItem>
+          </Col>
+          <Col span={12}>
+            <FormItem label={<strong>Contract Type</strong>}>
+              {getFieldDecorator("contractType", {
+                rules: [
+                  {
+                    required: true,
+                    message: "This Field is required",
+                    whitespace: true
+                  }
+                ]
+              })(<Input placeholder="Contract Type" />)}
+            </FormItem>
+          </Col>
+          <Col span={12}>
+            <FormItem label={<strong>Delivery Date</strong>}>
+              {getFieldDecorator("contractType", {
+                rules: [
+                  {
+                    required: true,
+                    message: "This Field is required",
+                    whitespace: true
+                  }
+                ]
+              })(<DatePicker style={{ width: "100%" }} />)}
+            </FormItem>
+          </Col>
+          <Col span={12}>
+            <FormItem label={<strong>Terms Of The Contract</strong>}>
+              {getFieldDecorator("contractType", {
+                rules: [
+                  {
+                    required: true,
+                    message: "This Field is required",
+                    whitespace: true
+                  }
+                ]
+              })(<Input placeholder="Terms of the contract" />)}
+            </FormItem>
+          </Col>
+        </Row>
+      </Form>
+    );
+  }
+}
+
+const HeaderForm = Form.create()(HeaderFormComponent);
+
+export default class HeaderInformation extends Component {
+  state = {};
+  render() {
+    const { summary, para } = style;
     const { initialCost, monthlyCost } = this.props;
     return (
       <SectionCard sectionTitle="Header Information">
-        <Row gutter={15} type="flex" style={{ marginBottom: 15 }}>
-          {this.state.fields.map(({ label, content }, i) => (
-            <Col span={12} key={i}>
-              <strong style={labelStyle}>{label}</strong>
-              {content}
-            </Col>
-          ))}
-        </Row>
+        <HeaderForm />
         <div style={summary}>
           <p style={para}>
             <strong>Expiration Date:</strong> 2018-10-06
@@ -52,7 +94,6 @@ export default class HeaderInformation extends Component {
   }
 }
 const style = {
-  labelStyle: { padding: "15px 0 5px 0", display: "block" },
   summary: {
     padding: "10px 15px",
     backgroundColor: "#F5F5F5",
