@@ -110,14 +110,11 @@ export default class DynamicTable extends Component {
     this.endElementsLength = 2; //btn + tax
     const _dataSource = [...this.state.dataSource];
 
-    // this.setState({ dataSource });
     this.sortable = new SortableJS(
       document.querySelector(`.${section} tbody`),
       {
         group: section,
-        onStart: () => {
-          // debugger;
-        },
+        handle: ".dragHandler",
         onSort: evt => {
           this.updateIndex(evt.oldIndex, evt.newIndex);
         }
@@ -187,7 +184,7 @@ export default class DynamicTable extends Component {
                     </Button>
                   ),
                   props: {
-                    colSpan: len + 1
+                    colSpan: len + 2
                   }
                 };
               }
@@ -237,6 +234,40 @@ export default class DynamicTable extends Component {
         };
       }
     );
+
+    gen.unshift({
+      title: null,
+      dataIndex: "drag",
+      width: 50,
+      align: "center",
+      render: (a, b, index) => {
+        if (index === this.state.limit) {
+          return {
+            props: {
+              colSpan: 0
+            }
+          };
+        }
+
+        return (
+          <Button
+            className="dragHandler"
+            style={{
+              width: 40,
+              height: 40,
+              lineHeight: "1em",
+              padding: 0,
+              alignSelf: "center",
+              borderWidth: "0 1px 0 0",
+              borderRadius: 0
+            }}
+            icon="drag"
+            type="ghost"
+            size="large"
+          />
+        );
+      }
+    });
 
     //add option
     gen.push({

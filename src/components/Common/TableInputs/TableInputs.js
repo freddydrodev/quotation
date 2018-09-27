@@ -17,7 +17,7 @@ class TableInputText extends Component {
   render() {
     const { prevValue, form, fieldIndex, analizer } = this.props;
     const { getFieldDecorator } = form;
-
+    const { TextArea } = Input;
     return (
       <FormItem style={style.formItem}>
         {getFieldDecorator(fieldIndex, {
@@ -26,7 +26,7 @@ class TableInputText extends Component {
             { required: true, message: "Cannot stay empty", whitespace: true }
           ]
         })(
-          <Input
+          <TextArea
             placeholder={prevValue}
             onBlur={analizer}
             size="small"
@@ -145,7 +145,7 @@ class TableInputs extends Component {
     return this.state.editing ? (
       <Form>{this.generateInput()}</Form>
     ) : (
-      <i onDoubleClick={() => this.setState({ editing: true })}>
+      <i onClick={() => this.setState({ editing: true })}>
         {this.props.data.prevValue}
       </i>
     );
